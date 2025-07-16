@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload de Imagem</title>
+</head>
+<body>
+<h2>Envio de Imagem</h2>
+<form id="uploadForm">
+    <input type="file" name="file" id="fileInput" accept="image/png, image/jpeg" required />
+    <button type="submit">Enviar</button>
+</form>
+
+<div id="resultado"></div>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const resultado = document.getElementById('resultado');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Selecione um arquivo.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/v1/images/uploads', {
+            method: 'POST',
+            body: formData
+        })
+            .then(async (response) => {
+                const data = await response.json();
+                if (response.ok) {
+                    resultado.innerHTML = `
+                        <p>Upload realizado com sucesso!</p>
+                        <p><strong>Nome:</strong> ${data.nomeOriginal}</p>
+                        <p><strong>Arquivo salvo como:</strong> ${data.nomeSalvo}</p>
+                        <p><strong>Caminho:</strong> ${data.caminho}</p>
+                    `;
+                } else {
+                    resultado.innerHTML = `<p style="color:red;">Erro: ${data}</p>`;
+                }
+            })..
+            .catch((err) => {
+                resultado.innerHTML = `<p style="color:red;">Erro na requisição</p>`;
+            });
+    });
+</script>
+</body>
+</html>
