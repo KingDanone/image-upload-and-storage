@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import static br.com.KingDanone.business.mapper.ImagemMapper.parseObject;
+import static br.com.KingDanone.business.mapper.ImagemMapper.parseList;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,10 +35,10 @@ public class ImagemServiceImpl implements ImagemService {
 
     @Override
     public ImagemDTO salavarImagem(MultipartFile file) throws IOException {
-        if (!file.isEmpty()) throw new IllegalArgumentException("file is empty!");
+        if (file.isEmpty()) throw new IllegalArgumentException("file is empty!");
 
         String contentType = file.getContentType();
-        if (!Arrays.asList("imagem/jpeg", "imagem/jpg", "imagem/png")
+        if (!Arrays.asList("image/jpeg", "image/jpg", "image/png")
                 .contains(contentType)){
             throw new IllegalArgumentException("Invalid image type! just JPG OR PNG");
         }
@@ -54,5 +56,11 @@ public class ImagemServiceImpl implements ImagemService {
         imagemRepository.save(imagem);
 
         return parseObject(imagem, ImagemDTO.class);
+    }
+
+    @Override
+    public List<ImagemDTO> findAllImagens() {
+        List<Imagem> imagens = imagemRepository.findAll();
+        return parseList(imagens, ImagemDTO.class);
     }
 }
